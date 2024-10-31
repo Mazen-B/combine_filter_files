@@ -1,0 +1,5 @@
+**__pycache__/
+**.ini
+filtered_output/
+output_combined/
+**_files/
