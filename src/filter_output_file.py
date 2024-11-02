@@ -84,14 +84,14 @@ def filter_file(file_path, output_file, conditions):
 ###########################################################################
 ###########################################################################
 
-conditions = {
-    "PE301": {"type": "greater_than", "value": 18},
-    "te201": {"type": "less_than", "value": 120},
-    "orcmode": {"type": "equals", "value": 3}
-}
-input_file = os.path.join("..", "output_combined", "test.csv")
-output_file = os.path.join("..", "filtered_output", "test_filtered.csv")
-filter_file(input_file, output_file, conditions)
+# conditions = {
+#     "PE301": {"type": "greater_than", "value": 18},
+#     "te201": {"type": "less_than", "value": 120},
+#     "orcmode": {"type": "equals", "value": 3}
+# }
+# input_file = os.path.join("..", "output_combined", "test.csv")
+# output_file = os.path.join("..", "filtered_output", "test_filtered.csv")
+# filter_file(input_file, output_file, conditions)
 
 ###########################################################################
 ###########################################################################

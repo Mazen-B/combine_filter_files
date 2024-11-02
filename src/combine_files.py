@@ -105,11 +105,11 @@ def combine_files(input_dir, output_file, file_type="both"):
 ################################################################
 ################################################################
 
-input_dir = os.path.join("..", "random_csv_xlsx_files")
-output_file = os.path.join("..", "output_combined", "test_both.csv")
+# input_dir = os.path.join("..", "random_csv_xlsx_files")
+# output_file = os.path.join("..", "output_combined", "test_both.csv")
 
-# csv, excel, or both
-combine_files(input_dir, output_file, file_type="both")
+# # csv, excel, or both
+# combine_files(input_dir, output_file, file_type="both")
 
 ################################################################
 ################################################################
