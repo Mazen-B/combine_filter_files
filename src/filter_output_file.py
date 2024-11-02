@@ -43,6 +43,11 @@ def filter_file(file_path, output_file, conditions):
             condition_type = condition.get("type")
             value = condition.get("value")
 
+            # check if the value is an int or float before applying conditions
+            if not isinstance(value, (int, float)):
+                logging.warning(f"The value for column '{column}' in condition '{condition_type}' is not numeric: {value}. Skipping.")
+                continue
+
             if condition_type == "greater_than":
                 df = df[df[column_lower] > value]
                 logging.info(f"Applied 'greater_than' condition on column '{column}' with value {value}.")
