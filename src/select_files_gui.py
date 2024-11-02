@@ -43,10 +43,25 @@ def toggle_filter_section():
         condition_frame.grid_forget()
         condition_list_frame.grid_forget()
 
+CONDITION_TYPE_MAP = {
+    "greater than": "greater_than",
+    "less than": "less_than",
+    "equals": "equals",
+    "not equals": "not_equals"
+}
+
 def add_condition():
     column = column_entry.get()
-    condition_type = condition_type_var.get()
+    condition_type_display = condition_type_var.get()  # get display name
     value = condition_value_entry.get()
+
+    # get internal condition type from the map
+    condition_type = CONDITION_TYPE_MAP.get(condition_type_display)
+
+    # check if column name is empty
+    if not column:
+        messagebox.showwarning("Empty Column Name", "Please add a column name.")
+        return
 
     # check if column exists in allowed columns
     if column not in ALLOWED_COLUMNS:
@@ -58,16 +73,25 @@ def add_condition():
         if not response:
             return
 
-    # check if value can be converted to a numeric type (int or float)
-    try:
-        numeric_value = float(value) if "." in value else int(value)
-    except ValueError:
-        messagebox.showwarning("Invalid Input", f"The value '{value}' is not a valid number.")
+    # check if value contains a comma and prompt the user to use a period
+    if "," in value:
+        messagebox.showwarning("Invalid Number Format", "Please use a period (.) instead of a comma (,) for decimal values.")
         return
+
+    # allow boolean values for equals and not_equals conditions
+    if condition_type in ["equals", "not_equals"] and value.lower() in ["true", "false"]:
+        numeric_value = value.lower() == "true"  # converts "true" to True and "false" to False
+    else:
+        # check if value can be converted to a numeric type (int or float)
+        try:
+            numeric_value = float(value) if "." in value else int(value)
+        except ValueError:
+            messagebox.showwarning("Invalid Input", f"The value '{value}' is not a valid number or boolean for the selected condition type.")
+            return
 
     if column and condition_type:
         filter_conditions.append((column, condition_type, numeric_value))
-        condition_list.insert(tk.END, f"{column} {condition_type} {numeric_value}")
+        condition_list.insert(tk.END, f"{column} {condition_type_display} {numeric_value}")
         column_entry.delete(0, tk.END)
         condition_value_entry.delete(0, tk.END)
 
@@ -161,9 +185,9 @@ tk.Label(condition_frame, text="Value").grid(row=0, column=2, padx=5)
 column_entry = ttk.Entry(condition_frame, width=20)
 column_entry.grid(row=1, column=0, padx=5)
 
-condition_type_var = tk.StringVar(value="greater_than")
+condition_type_var = tk.StringVar(value="greater than")
 condition_type_menu = ttk.Combobox(condition_frame, textvariable=condition_type_var, state="readonly",
-                                   values=["greater_than", "less_than", "equals", "not_equals"], width=15)
+                                   values=list(CONDITION_TYPE_MAP.keys()), width=15)
 condition_type_menu.grid(row=1, column=1, padx=5)
 
 condition_value_entry = ttk.Entry(condition_frame, width=20)
