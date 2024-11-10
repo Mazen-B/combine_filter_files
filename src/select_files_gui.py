@@ -1,7 +1,7 @@
 import os
 import tkinter as tk
 from combine_files import combine_files
-from filter_output_file import filter_file
+from filter_combined_file import filter_file
 from allowed_col_names import ALLOWED_COLUMNS
 from tkinter import filedialog, messagebox, ttk
 

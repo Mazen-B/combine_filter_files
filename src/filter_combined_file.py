@@ -26,11 +26,8 @@ def filter_file(file_path, output_file, conditions):
             os.makedirs(output_dir, exist_ok=True)
             logging.info(f"Created directory for output file at: {output_dir}")
 
-        # convert DataFrame columns to lowercase for case-insensitive matching
-        df.columns = [col.lower() for col in df.columns]
-        
         # check if all specified columns are in the DataFrame
-        missing_columns = [column for column in conditions if column.lower() not in df.columns]
+        missing_columns = [column for column in conditions if column not in df.columns]
         if missing_columns:
             missing_columns_str = ", ".join(missing_columns)
             logging.error(f"The following columns are missing from the data: {missing_columns_str}. Exiting the function.")
@@ -38,8 +35,6 @@ def filter_file(file_path, output_file, conditions):
         
         # apply filtering conditions
         for column, condition in conditions.items():
-            column_lower = column.lower()
-            
             condition_type = condition.get("type")
             value = condition.get("value")
 
@@ -49,16 +44,16 @@ def filter_file(file_path, output_file, conditions):
                 continue
 
             if condition_type == "greater_than":
-                df = df[df[column_lower] > value]
+                df = df[df[column] > value]
                 logging.info(f"Applied 'greater_than' condition on column '{column}' with value {value}.")
             elif condition_type == "less_than":
-                df = df[df[column_lower] < value]
+                df = df[df[column] < value]
                 logging.info(f"Applied 'less_than' condition on column '{column}' with value {value}.")
             elif condition_type == "equals":
-                df = df[df[column_lower] == value]
+                df = df[df[column] == value]
                 logging.info(f"Applied 'equals' condition on column '{column}' with value {value}.")
             elif condition_type == "not_equals":
-                df = df[df[column_lower] != value]
+                df = df[df[column] != value]
                 logging.info(f"Applied 'not_equals' condition on column '{column}' with value {value}.")
             else:
                 logging.warning(f"Unsupported condition type '{condition_type}' for column '{column}'. Skipping.")
