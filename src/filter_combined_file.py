@@ -26,37 +26,65 @@ def filter_file(file_path, output_file, conditions):
             os.makedirs(output_dir, exist_ok=True)
             logging.info(f"Created directory for output file at: {output_dir}")
 
-        # check if all specified columns are in the DataFrame
-        missing_columns = [column for column in conditions if column not in df.columns]
+        # check if all the needed columns are in the df
+        special_keys = {"columns_to_keep", "columns_to_remove"}
+        missing_columns = []
+
+        for key, value in conditions.items():
+            if key in special_keys:
+                for column in value:
+                    if column not in df.columns:
+                        missing_columns.append(column)
+            else:
+                if key not in df.columns:
+                    missing_columns.append(key)
         if missing_columns:
             missing_columns_str = ", ".join(missing_columns)
             logging.error(f"The following columns are missing from the data: {missing_columns_str}. Exiting the function.")
             return
-        
+
         # apply filtering conditions
-        for column, condition in conditions.items():
+        for key, condition in conditions.items():
+            if key in special_keys:
+                continue  # skip "columns_to_keep" and "columns_to_remove"
+
             condition_type = condition.get("type")
             value = condition.get("value")
 
-            # check if the value is an int or float before applying conditions
-            if not isinstance(value, (int, float)):
-                logging.warning(f"The value for column '{column}' in condition '{condition_type}' is not numeric: {value}. Skipping.")
+            # check if the value is numeric/bool before applying conditions
+            if not isinstance(value, (int, float, bool)):
+                logging.warning(f"The value for column '{key}' in condition '{condition_type}' is not numeric: {value}. Skipping.")
                 continue
 
             if condition_type == "greater_than":
-                df = df[df[column] > value]
-                logging.info(f"Applied 'greater_than' condition on column '{column}' with value {value}.")
+                df = df[df[key] > value]
+                logging.info(f"Applied 'greater_than' condition on column '{key}' with value {value}.")
             elif condition_type == "less_than":
-                df = df[df[column] < value]
-                logging.info(f"Applied 'less_than' condition on column '{column}' with value {value}.")
+                df = df[df[key] < value]
+                logging.info(f"Applied 'less_than' condition on column '{key}' with value {value}.")
             elif condition_type == "equals":
-                df = df[df[column] == value]
-                logging.info(f"Applied 'equals' condition on column '{column}' with value {value}.")
+                df = df[df[key] == value]
+                logging.info(f"Applied 'equals' condition on column '{key}' with value {value}.")
             elif condition_type == "not_equals":
-                df = df[df[column] != value]
-                logging.info(f"Applied 'not_equals' condition on column '{column}' with value {value}.")
+                df = df[df[key] != value]
+                logging.info(f"Applied 'not_equals' condition on column '{key}' with value {value}.")
             else:
-                logging.warning(f"Unsupported condition type '{condition_type}' for column '{column}'. Skipping.")
+                logging.warning(f"Unsupported condition type '{condition_type}' for column '{key}'. Skipping.")
+
+        # process columns to keep or remove
+        columns_to_keep = conditions.get("columns_to_keep", None)
+        columns_to_remove = conditions.get("columns_to_remove", None)
+
+        if columns_to_keep is not None and columns_to_remove is not None:
+            logging.warning("Both 'columns_to_keep' and 'columns_to_remove' are specified. 'columns_to_keep' will take precedence.")
+            columns_to_remove = None
+
+        if columns_to_keep is not None:
+            df = df[columns_to_keep]
+            logging.info(f"Kept only specified columns: {', '.join(columns_to_keep)}.")
+        elif columns_to_remove is not None:
+            df = df.drop(columns=columns_to_remove)
+            logging.info(f"Removed specified columns: {', '.join(columns_to_remove)}.")
 
         # save the filtered data
         try:

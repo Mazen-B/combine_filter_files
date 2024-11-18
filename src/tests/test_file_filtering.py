@@ -13,6 +13,8 @@ class TestFilterFile(unittest.TestCase):
         self.output_file_2 = os.path.join("tests_IO", "filtered_output_2.csv")
         self.output_file_3 = os.path.join("tests_IO", "filtered_output_3.csv")
         self.output_file_4 = os.path.join("tests_IO", "filtered_output_4.csv")
+        self.output_file_5 = os.path.join("tests_IO", "filtered_output_5.csv")
+        self.output_file_6 = os.path.join("tests_IO", "filtered_output_6.csv")
 
     def test_greater_than_filter(self):
         """
@@ -56,6 +58,28 @@ class TestFilterFile(unittest.TestCase):
         filtered_df = pd.read_csv(self.output_file_4)
 
         expected_df = pd.DataFrame({"A": [1, 10, 15, 20], "B": [2, 11, 16, 21], "C": [3, 12, 17, 22]})
+        pd.testing.assert_frame_equal(filtered_df, expected_df)
+
+    def test_columns_to_keep(self):
+        """
+      In this test, we check the filtering with a "columns_to_keep" condition.
+      """
+        conditions = {"columns_to_keep": ["A"]}
+        filter_file(file_path=self.test_file, output_file=self.output_file_5, conditions=conditions)
+        filtered_df = pd.read_csv(self.output_file_5)
+
+        expected_df = pd.DataFrame({"A": [1, 5, 10, 15, 20]})
+        pd.testing.assert_frame_equal(filtered_df, expected_df)
+
+    def test_columns_to_remove(self):
+        """
+      In this test, we check the filtering with a "columns_to_remove" condition.
+      """
+        conditions = {"columns_to_remove": ["B"]}
+        filter_file(file_path=self.test_file, output_file=self.output_file_6, conditions=conditions)
+        filtered_df = pd.read_csv(self.output_file_6)
+
+        expected_df = pd.DataFrame({"A": [1, 5, 10, 15, 20], "C": [3, 7, 12, 17, 22]})
         pd.testing.assert_frame_equal(filtered_df, expected_df)
 
 if __name__ == "__main__":
