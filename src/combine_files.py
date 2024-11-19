@@ -4,7 +4,6 @@ import pandas as pd
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
-
 def validate_directory(input_dir, output_file):
     """
   This function ensures that the input directory exists and create output directory if needed.
@@ -125,7 +124,7 @@ def combine_files(input_dir, output_file, file_type="both"):
         if df is not None:
             columns_list = check_column_consistency(df, columns_list)
             if columns_list is None:
-                return  # Abort if columns are inconsistent
+                return
             df_list.append(df)
             logging.info(f"File {file} successfully read and appended.")
 
