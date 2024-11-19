@@ -1,3 +1,3 @@
 @echo off
-start "" pythonw src/select_files_gui.py
+start "" pythonw src/gui/select_files_gui.py
 exit /b 0

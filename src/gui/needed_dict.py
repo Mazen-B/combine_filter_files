@@ -1,5 +1,5 @@
 ALLOWED_COLUMNS = {
-    "time", "TE101", "te102", "TE201", "TE202", "T_HW_AW_ein", "TE302", "TE306", "TE307", 
+    "time", "TE101", "TE102", "TE201", "TE202", "T_HW_AW_ein", "TE302", "TE306", "TE307", 
     "TE401", "TE501", "TE502", "TE503", "TE601", "TE701", "TE702", "TE801", "TE802", 
     "TE101b", "TE102b", "PE201", "pe301", "PE303", "g_301", "vesselEngineLoad", "V101", 
     "scond", "sgen", "sfp", "v210", "BS_ges/32767", "BS_ges", "speedmeasflange", 
@@ -8,4 +8,13 @@ ALLOWED_COLUMNS = {
     "orcmode", "gridok", "fpok", "genok", "startbtn", "exten", "cabbtnenop",
     "V306", "emstop", "vessengineactive", "fe201flwok", "fe701flwok", "fe403flwok", 
     "onshoreop", "gentok"
+}
+
+CONDITION_TYPE_MAP = {
+    "greater than": "greater_than",
+    "less than": "less_than",
+    "equals": "equals",
+    "not equals": "not_equals",
+    "Columns to Keep": "columns_to_keep",
+    "Columns to Remove": "columns_to_remove"
 }
