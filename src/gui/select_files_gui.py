@@ -104,7 +104,7 @@ class FileOperationTool:
 
             if self.combine_apply_filter.get():
                 conditions = self.convert_conditions_to_dict(self.combine_filter_conditions)
-                self.apply_filter(output_file, output_file, conditions)
+                filter_file(output_file, output_file, conditions)
 
             # check for logged warnings or errors
             log_messages = get_log_messages()
@@ -118,19 +118,6 @@ class FileOperationTool:
             messagebox.showerror("Error", f"An error occurred: {e}")
             log_messages = get_log_messages()
             print(log_messages)
-
-    def apply_filter(self, input_file, output_file, conditions):
-        """
-      This helper method applies filters to a file.
-      """
-        backup_file = input_file + "_backup"
-        os.rename(input_file, backup_file)
-        try:
-            filter_file(file_path=backup_file, output_file=output_file, conditions=conditions)
-            os.remove(backup_file)
-        except Exception as e:
-            os.rename(backup_file, input_file)
-            raise e
 
     ####################################
     # "Filter Existing File" tab's logic
@@ -181,7 +168,7 @@ class FileOperationTool:
         output_file = os.path.join(self.filter_output_directory.get(), self.filter_output_filename.get())
         try:
             conditions = self.convert_conditions_to_dict(self.filter_filter_conditions) if self.filter_apply_filter.get() else {}
-            self.apply_filter(self.filter_input_file.get(), output_file, conditions)
+            filter_file(self.filter_input_file.get(), output_file, conditions)
 
             log_messages = get_log_messages()
             if "ERROR" in log_messages or "WARNING" in log_messages:
