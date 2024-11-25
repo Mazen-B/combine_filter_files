@@ -2,10 +2,10 @@ import os
 import sys
 import tkinter as tk
 import ttkbootstrap as ttkb
+from filter_handler import FilterHandler
 from tkinter import filedialog, messagebox
 from auto_complete import AutocompleteEntry
 from needed_dict import ALLOWED_COLUMNS, CONDITION_TYPE_MAP
-from filter_handler import FilterHandler
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from logging_config import clear_log_buffer, get_log_messages
@@ -112,6 +112,7 @@ class FileOperationTool:
                 messagebox.showwarning("Warning", log_messages)
             else:
                 messagebox.showinfo("Success", "Files combined successfully!")
+                self.root.destroy()
 
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
@@ -131,9 +132,9 @@ class FileOperationTool:
             os.rename(backup_file, input_file)
             raise e
 
-    ######################################
+    ####################################
     # "Filter Existing File" tab's logic
-    ######################################
+    ####################################
     def build_one_file_tab(self):
         """
       This method builds the "Filter Existing File" tab, allowing users to specify input/output directories, output filename, and optional filter conditions.
@@ -186,15 +187,12 @@ class FileOperationTool:
             if "ERROR" in log_messages or "WARNING" in log_messages:
                 messagebox.showwarning("Warning", log_messages)
             else:
-                # Show success message and close UI on OK
                 if messagebox.showinfo("Success", "File filtered successfully!") == "ok":
-                    self.root.destroy()  # Close the UI window
+                    self.root.destroy()
 
         except Exception as e:
-            # Capture unexpected exceptions
             messagebox.showerror("Error", f"An error occurred: {e}")
 
-            # Display the logged messages (optional for debugging)
             log_messages = get_log_messages()
             print(log_messages)
 
@@ -211,20 +209,26 @@ class FileOperationTool:
 
         ttkb.Label(condition_frame, text="Column(s):").grid(row=0, column=0, padx=5, pady=2, sticky="w")
         autocomplete_list = ALLOWED_COLUMNS
-        column_entry = AutocompleteEntry(autocomplete_list, condition_frame, width=25)
+        column_entry = AutocompleteEntry(autocomplete_list, condition_frame, width=25, root=self.root)
         column_entry.grid(row=1, column=0, padx=5, pady=5, sticky="w")
 
         ttkb.Label(condition_frame, text="Condition Type:").grid(row=0, column=1, padx=5, pady=2, sticky="w")
+        condition_type_var = self.condition_type_var_filter if tab_type == "filter" else self.condition_type_var_combine
         condition_type_menu = ttkb.Combobox(
             condition_frame,
-            textvariable=(self.condition_type_var_filter if tab_type == "filter" else self.condition_type_var_combine),
+            textvariable=condition_type_var,
             state="readonly",
             values=list(CONDITION_TYPE_MAP.keys()),
             width=20
         )
         condition_type_menu.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
-        ttkb.Label(condition_frame, text="Value:").grid(row=0, column=2, padx=5, pady=2, sticky="w")
+        condition_type_menu.bind("<<ComboboxSelected>>", lambda event, tab=tab_type: self.filter_handler.on_condition_type_change(
+            condition_type_var, value_entry, value_label
+        ))
+
+        value_label = ttkb.Label(condition_frame, text="Value:")
+        value_label.grid(row=0, column=2, padx=5, pady=2, sticky="w")
         value_entry = ttkb.Entry(condition_frame, width=15)
         value_entry.grid(row=1, column=2, padx=5, pady=5, sticky="w")
 
@@ -232,10 +236,12 @@ class FileOperationTool:
             self.columns_entry_filter = column_entry
             self.condition_type_menu_filter = condition_type_menu
             self.condition_value_entry_filter = value_entry
+            self.condition_value_label_filter = value_label
         else:
             self.columns_entry_combine = column_entry
             self.condition_type_menu_combine = condition_type_menu
             self.condition_value_entry_combine = value_entry
+            self.condition_value_label_combine = value_label
 
         ttkb.Button(
             condition_frame, text="Add Condition",
@@ -255,6 +261,7 @@ class FileOperationTool:
                 command=lambda: self.remove_condition(tab_type)
             )
             self.remove_button_filter.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+            self.remove_button_filter["state"] = "disabled"
         else:
             self.condition_list_combine = condition_list
             self.remove_button_combine = ttkb.Button(
@@ -262,6 +269,7 @@ class FileOperationTool:
                 command=lambda: self.remove_condition(tab_type)
             )
             self.remove_button_combine.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+            self.remove_button_combine["state"] = "disabled"
 
         return filter_conditions_frame
     
@@ -290,8 +298,8 @@ class FileOperationTool:
                 self.combine_filter_conditions,
                 self.condition_list_combine
             )
-            if not error:
-                self.remove_button_combine["state"] = "normal"
+            # Enable or disable the remove button
+            self.remove_button_combine["state"] = "normal" if self.combine_filter_conditions else "disabled"
         else:
             error = self.filter_handler.add_condition(
                 self.columns_entry_filter,
@@ -300,8 +308,8 @@ class FileOperationTool:
                 self.filter_filter_conditions,
                 self.condition_list_filter
             )
-            if not error:
-                self.remove_button_filter["state"] = "normal"
+            # Enable or disable the remove button
+            self.remove_button_filter["state"] = "normal" if self.filter_filter_conditions else "disabled"
         if error:
             messagebox.showwarning("Error", error)
 
@@ -311,8 +319,10 @@ class FileOperationTool:
       """
         if tab_type == "combine":
             error = self.filter_handler.remove_condition(self.condition_list_combine, self.combine_filter_conditions)
+            self.remove_button_combine["state"] = "normal" if self.combine_filter_conditions else "disabled"
         else:
             error = self.filter_handler.remove_condition(self.condition_list_filter, self.filter_filter_conditions)
+            self.remove_button_filter["state"] = "normal" if self.filter_filter_conditions else "disabled"
         if error:
             messagebox.showwarning("Error", error)
 

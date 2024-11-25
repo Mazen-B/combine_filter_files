@@ -74,3 +74,17 @@ class FilterHandler:
             filter_conditions_frame.grid()
         else:
             filter_conditions_frame.grid_remove()
+
+    def on_condition_type_change(self, condition_type_var, value_entry, value_label):
+        """
+      This method shows or hides the Value entry field based on the selected condition type.
+      """
+        condition_type_display = condition_type_var.get()
+        condition_type = self.condition_type_map.get(condition_type_display)
+
+        if condition_type in ["columns_to_keep", "columns_to_remove"]:
+            value_entry.grid_remove()
+            value_label.grid_remove()
+        else:
+            value_label.grid()
+            value_entry.grid()
