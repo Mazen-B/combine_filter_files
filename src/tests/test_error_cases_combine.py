@@ -36,8 +36,7 @@ class TestCombineFilesErrors(unittest.TestCase):
             combine_files(input_dir=self.test_dir_1, output_file=self.output_file_2, file_type="csv")
         
         # verify error log about inconsistent columns
-        self.assertIn("Not all files have the same columns or column order. Aborting combination.", log.output[0])
-
+        self.assertIn("Files have inconsistent columns or data types. Aborting combination.", log.output[0])
 
     def test_inconsistent_col_name(self):
         """
@@ -47,8 +46,8 @@ class TestCombineFilesErrors(unittest.TestCase):
         with self.assertLogs(level="ERROR") as log:
             combine_files(input_dir=self.test_dir_2, output_file=self.output_file_3, file_type="csv")
         
-        # verify error log about inconsistent columns
-        self.assertIn("Not all files have the same columns or column order. Aborting combination.", log.output[0])
+        # verify updated error log about inconsistent columns or data types
+        self.assertIn("Files have inconsistent columns or data types. Aborting combination.", log.output[0])
 
     def test_combine_csv_files_only(self):
         """

@@ -12,7 +12,7 @@ def validate_directory(input_dir, output_file):
         logging.error("Specified directory does not exist. Please check the path.")
         return False
 
-    output_dir = os.path.dirname(output_file)
+    output_dir = os.path.dirname(output_file) or "."
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
         logging.info(f"Created directory for output file at: {output_dir}")
@@ -45,16 +45,16 @@ def get_files(input_dir, file_type, output_file):
 
     return files
 
-def check_column_consistency(df, columns_list):
+def check_column_consistency(df, columns_list, dtypes_list=None):
     """
   This function checks if the DataFrame's columns are consistent with the initial columns in both names and order.
   """
     if columns_list is None:
-        return list(df.columns)
-    elif list(df.columns) != columns_list:
-        logging.error("Not all files have the same columns or column order. Aborting combination.")
-        return None
-    return columns_list
+        return list(df.columns), list(df.dtypes)
+    elif list(df.columns) != columns_list or (dtypes_list and list(df.dtypes) != dtypes_list):
+        logging.error("Files have inconsistent columns or data types. Aborting combination.")
+        return None, None
+    return columns_list, dtypes_list
 
 def read_file(file_path):
     """
@@ -72,6 +72,8 @@ def read_file(file_path):
         logging.warning(f"File {file_path} is empty. Skipping.")
     except pd.errors.ParserError:
         logging.error(f"File {file_path} could not be parsed. Skipping.")
+    except PermissionError:
+        logging.error(f"Permission denied while reading {file_path}. Skipping.")
     except Exception as e:
         logging.error(f"An error occurred while processing {file_path}: {e}")
     return None
@@ -116,15 +118,21 @@ def combine_files(input_dir, output_file, file_type="both"):
 
     df_list = []
     columns_list = None
+    dtypes_list = None
 
     for file in files:
         file_path = os.path.join(input_dir, file)
         df = read_file(file_path)
 
         if df is not None:
-            columns_list = check_column_consistency(df, columns_list)
+            if df.empty:
+                logging.warning(f"File {file_path} is empty after reading. Skipping.")
+                continue
+
+            columns_list, dtypes_list = check_column_consistency(df, columns_list, dtypes_list)
             if columns_list is None:
                 return
+
             df_list.append(df)
             logging.info(f"File {file} successfully read and appended.")
 
