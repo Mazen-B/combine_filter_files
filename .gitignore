@@ -1,4 +1,4 @@
 **.ini
 **__pycache__/
-src/tests/tests_IO
+tests/tests_IO
 icon/
