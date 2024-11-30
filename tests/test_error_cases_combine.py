@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from combine_files import combine_files
+from src.combine_files import combine_files
 
 class TestCombineFilesErrors(unittest.TestCase):
     def setUp(self):

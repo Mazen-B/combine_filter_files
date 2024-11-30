@@ -58,7 +58,7 @@ def filter_file(file_path, output_file, conditions):
         # apply filtering conditions
         for key, condition in conditions.items():
             if key in {"columns_to_keep", "columns_to_remove"}:
-                continue  # Skip special keys
+                continue  # skip special keys
 
             condition_type = condition.get("type")
             value = condition.get("value")

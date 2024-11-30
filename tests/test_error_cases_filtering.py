@@ -4,7 +4,7 @@ import unittest
 import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from filter_combined_file import filter_file, validate_conditions
+from src.filter_combined_file import filter_file, validate_conditions
 
 class TestFilterFile(unittest.TestCase):
     def setUp(self):
