@@ -12,8 +12,14 @@ def validate_conditions(conditions, df_columns):
 
     for key, condition in conditions.items():
         if key in special_keys:
-            if not isinstance(condition, list) or len(condition) > 0:
-                raise ValueError(f"'{key}' should be an empty list, as it does not accept values.")
+            # validate that the condition is a list
+            if not isinstance(condition, list):
+                raise ValueError(f"'{key}' should be a list of columns.")
+            
+            # check if all columns in the list are valid
+            invalid_columns = [col for col in condition if col not in df_columns]
+            if invalid_columns:
+                raise ValueError(f"The following columns in '{key}' are not valid: {', '.join(invalid_columns)}")
         else:
             if key not in df_columns:
                 raise ValueError(f"Column '{key}' not found in the data. Please check the column names.")
