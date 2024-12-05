@@ -1,3 +1,5 @@
+from tkinter import messagebox
+
 class FilterHandler:
     """
   This is a helper class to handle filtering logic for multiple tabs.
@@ -22,7 +24,14 @@ class FilterHandler:
         # check if columns are in allowed columns
         unknown_columns = [col for col in columns if col not in self.allowed_columns]
         if unknown_columns:
-            return f"The following columns are not allowed: {', '.join(unknown_columns)}."
+            # ask the user for confirmation
+            user_confirmation = messagebox.askyesno(
+                "Unknown Columns Detected",
+                f"The following columns are not in the allowed list: {', '.join(unknown_columns)}.\n"
+                "Are you sure these columns exist in your dataset?"
+            )
+            if not user_confirmation:
+                return "Condition addition cancelled by user."
 
         # handle conditions without values
         if condition_type in ["columns_to_keep", "columns_to_remove"]:
